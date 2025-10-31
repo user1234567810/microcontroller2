@@ -5,7 +5,7 @@
 4. Make sure your wiring matches the configuration listed below.
 5. Plug in the Pico while holding down the bootsel button on the Pico.
 6. Press the Run button in the bottom left corner of VSCode. This should start the program.
-7. (Optional) By default, the sensor program will blink when reading and processing data from the sensor. You can change the mode by changing the BLINK_AFTER_INIT value to true in line 50 of the sensor.h file. This will cause the sensor to run the example Blink program after successful initialization of the onboard LED and the DHT20 sensor.
+7. (Optional) By default, the sensor program will blink when reading and processing data from the sensor. You can change the mode by changing the BLINK_AFTER_INIT value to true in line 50 of the sensor.h file and then unplugging your Pico and doing steps 4-5 again. This will cause the sensor to run the example Blink program after successful initialization of the onboard LED and the DHT20 sensor.
 
 ## DHT20 wiring configuration
 *Note: This is also written out in sensor.c.*
