@@ -51,13 +51,26 @@ dht_reading *sensor_measurement_ptr = &sensor_measurement;
 // Initialize DHT20 sensor (Adapted from DHT example code)
 bool dht_init(void) {
     stdio_init_all();
+    sleep_ms(2500);
 
     // I2C initialization sequence
+    printf("Initializing the DHT20 sensor.\n");
     i2c_init(I2C_PORT, I2C_FREQ); // Quicker baud rate of 400 kHz
     gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
     gpio_set_function(I2C_SCL_PIN, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_SDA_PIN);
     gpio_pull_up(I2C_SCL_PIN);
+
+    // Reading status register
+    uint8_t status;
+    printf("Checking status register now: ");
+    // int status_register = i2c_read_blocking(I2C_PORT, DHT20_I2C_ADDR, &status, 1, false);
+    // if (status_register < 0) {
+    //     printf("DHT20 not found at address 0x%02X\n", DHT20_I2C_ADDR);
+    //     return false;
+    // } else {
+    //     printf("Status ok.\n");
+    // }
 
     return true;
 }
@@ -70,8 +83,6 @@ void read_from_dht(dht_reading *result) {
     uint received_data_bits = 0;
 
     // Send an init signal (0) to the DHT sensor, then wait
-    // gpio_set_dir(DHT_PIN, GPIO_OUT);
-    // gpio_put(DHT_PIN, 0);
     // uint8_t i2c_init_signal[3] = {0xAC, 0x33, 0x00};
     printf("Going to try the write blocking function now...\n");
     uint8_t i2c_init_signal[1] = {0x00};
@@ -143,8 +154,6 @@ void read_from_dht(dht_reading *result) {
 }
 
 int main() {
-    sleep_ms(5000);             // Give the Pico time to power up
-    printf("Initializing the DHT20 sensor.\n");
     int dht_init_status = dht_init();
     hard_assert(dht_init_status == 1);
     while (true) {

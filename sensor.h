@@ -43,9 +43,9 @@ void read_from_dht(dht_reading *result);
 #define DHT20_CMD_SOFT_RESET 0xBA
 
 // Configure I2C
-#define I2C_PORT i2c0
-#define I2C_SDA_PIN 9
-#define I2C_SCL_PIN 10
+#define I2C_PORT i2c1
+#define I2C_SDA_PIN 6
+#define I2C_SCL_PIN 7
 #define I2C_FREQ 400000
 
 // Constants (Adapted from DHT example code)
