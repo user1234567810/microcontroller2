@@ -62,11 +62,12 @@ bool dht_init(void) {
     stdio_init_all();
 
     // I2C initialization sequence
-    i2c_init(i2c_default, 100 * 1000); // Standard baud rate of 100 kHz
+    i2c_init(I2C_PORT, I2C_FREQ); // Quicker baud rate of 400 kHz
     gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
     gpio_set_function(I2C_SCL_PIN, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_SDA_PIN);
     gpio_pull_up(I2C_SCL_PIN);
+
     return true;
 }
 
@@ -77,13 +78,16 @@ void read_from_dht(dht_reading *result) {
     uint previous_pin_state = 1;
     uint received_data_bits = 0;
 
-    // Set the DHT pin to send output, send an init signal (0), then wait
+    // Send an init signal (0) to the DHT sensor, then wait
     gpio_set_dir(DHT_PIN, GPIO_OUT);
     gpio_put(DHT_PIN, 0);
+    // uint8_t i2c_init_signal[1] = {0x00};
+    // i2c_write_blocking(I2C_PORT, DHT20_I2C_ADDR, i2c_init_signal, 1, false);
     sleep_ms(SLEEP_TIME);
 
     // Set the DHT pin to receive input
     gpio_set_dir(DHT_PIN, GPIO_IN);
+    uint8_t i2c_receive_buffer[40];
 
     // Send an on command to the LED pin (indicates receiving/reading data)
     gpio_put(PICO_DEFAULT_LED_PIN, 1);
