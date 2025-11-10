@@ -26,9 +26,7 @@ Description: Provides interface for structures, functions, and constants for
 #ifndef SENSOR_H
 #define SENSOR_H
 
-// THESE VALUES CAN BE UPDATED
-// Mode: Change the boolean to switch the blinking DHT status indicator
-bool BLINK_AFTER_INIT = false;
+// User can update the sleep value if adjustments are needed.
 const uint SLEEP_TIME = 20;
 
 // Structures
@@ -39,13 +37,10 @@ typedef struct {
 } dht_reading;
 
 // Function prototypes
-int pico_led_init(void);
 bool dht_init(void);
 void read_from_dht(dht_reading *result);
-void pico_set_led(bool led_on);
 
 // Definitions (adapted from Blink example code)
-#define LED_DELAY_MS 250
 #define DHT20_I2C_ADDR 0x38     // Default DHT20 sensor I2C addr
 #define DHT20_CMD_INIT 0xBE
 #define DHT20_CMD_TRIGGER 0xAC
