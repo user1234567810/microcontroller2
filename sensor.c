@@ -54,7 +54,20 @@ bool dht_init(void) {
     gpio_pull_up(I2C_SDA_PIN);
     gpio_pull_up(I2C_SCL_PIN);
 
+    // Verify connection
+    uint8_t i2c_init_signal[1] = {0x00};
+    int result = i2c_read_blocking(I2C_PORT, DHT20_I2C_ADDR, i2c_init_signal, 1, false);
+    if (result < 0) {
+        printf("DHT20 not responding at address 0x%02X\n", DHT20_I2C_ADDR);
+        return false;
+    }
+
     return true;
+}
+
+// Convert a given Celsius float value to Fahrenheit
+float celsius_to_fahrenheit(float temp_celsius) {
+    return (temp_celsius * 9.0 / 5.0) + 32.0;
 }
 
 // Get a reading from the DHT20 sensor (Adapted from DHT example code)
@@ -65,8 +78,6 @@ void read_from_dht(dht_reading *result) {
     int send_command = i2c_write_blocking(I2C_PORT, DHT20_I2C_ADDR, i2c_init_signal, 3, false);
     if (send_command < 0) {
         printf("Failed: send_command = %d\n", send_command);
-    } else {
-        printf("Success: send_command = %d\n", send_command);
     }
     sleep_ms(SLEEP_TIME);
 
@@ -76,13 +87,12 @@ void read_from_dht(dht_reading *result) {
     int receive_data = i2c_read_blocking(I2C_PORT, DHT20_I2C_ADDR, received_data, 7, false);
     if (receive_data < 0) {
         printf("Failed: receive_data = %d\n", receive_data);
-    } else {
-        printf("Success: receive_data = %d\n", receive_data);
     }
 
     // Check if sensor was done measuring: Status byte (0) bit 7 == 0 when ready
     if (received_data[0] & 0x80) {
         printf("Sensor is busy.\n");
+        return;
     }
 
     // Collect raw humidity data from received_data bytes: 20 bits total
@@ -92,11 +102,31 @@ void read_from_dht(dht_reading *result) {
     uint32_t raw_humidity = ((uint32_t)received_data[1] << 12 | (uint32_t)received_data[2] << 4 | (uint32_t)received_data[3] >> 4);
 
     // Convert humidity from binary to decimal percentage
-    result->humidity = (raw_humidity / 1048576.0f) * 100.0f;   // 2^20 = 1048576
+    result->humidity = (raw_humidity / BIN_TO_DEC) * 100.0f;
+
+    // Extract raw temperature data from received_data bytes: 20 bits total
+    // From Byte 3: bits [19:16]
+    // From Byte 4: bits [15:8]
+    // From Byte 5: bits [7:0]
+    uint32_t raw_temp = ((uint32_t)(received_data[3] & 0x0F) << 16) | ((uint32_t)received_data[4] << 8) | received_data[5];
+
+    // Convert raw temp data to Celsius
+    result->temp_celsius = ((float)raw_temp / BIN_TO_DEC) * 200.0f - 50.0f;
+
+    // Convert temp in Celsius to Fahrenheit
+    result->temp_fahrenheit = celsius_to_fahrenheit(result->temp_celsius);
 }
 
 float get_humidity(dht_reading *result) {
     return result->humidity;
+}
+
+float get_temp_celsius(dht_reading *result) {
+    return result->temp_celsius;
+}
+
+float get_temp_fahrenheit(dht_reading *result) {
+    return result->temp_fahrenheit;
 }
 
 int main() {
@@ -109,12 +139,12 @@ int main() {
     dht_reading *sensor_measurement_ptr = &sensor_measurement;
 
     // Initialize DHT20 sensor
-    int dht_init_status = dht_init();
-    if (dht_init_status == 0) {
+    bool dht_init_status = dht_init();
+    if (!dht_init_status) {
         printf("The sensor did not initialize successfully. Please restart.\n");
         return 1;
     }
-    hard_assert(dht_init_status == 1);
+    hard_assert(dht_init_status);
     printf("DHT20 sensor successfully initialized.\n");
 
     // Start data read loop
@@ -124,7 +154,8 @@ int main() {
         // & processing data. Adapted from the DHT example code.
         printf("\n------------------------------------------------------\n");
         read_from_dht(sensor_measurement_ptr);
-        printf("Humidity: %.2f%%\n", get_humidity(sensor_measurement_ptr));
+        printf("Humidity: %.1f%%\n", get_humidity(sensor_measurement_ptr));
+        printf("Temperature: %.1f°C, %.1f°F\n", get_temp_celsius(sensor_measurement_ptr), get_temp_fahrenheit(sensor_measurement_ptr));
         sleep_ms(2000);
     }
 

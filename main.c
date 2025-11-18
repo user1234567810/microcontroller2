@@ -28,3 +28,67 @@ Notes:
 #include <stdint.h>
 #include <stdbool.h>
 #include "pico/stdlib.h"
+
+// Include project files
+// #include "sensor.h"     // Sensor interface
+// #include "display.h"    // Display interface (placeholder)
+// #include "led_array.h"  // LED array interface (placeholder)
+
+// Constants
+// Checks every 2 seconds
+#define HUMIDITY_CHECK_INTERVAL_MS 2000
+
+// int main() {
+
+//     printf("Raspberry Pi Humidity Sensor: Initializing hardware...\n");
+
+//     // Initialize hardware (sensor, display, led array)
+//     if (!sensor_init()) { // sensor_init is a placeholder function and comes from sensor.c/.h
+//         printf("ERROR: Failed to initialize humidity sensor!\n");
+//         // Optionally, blink an error pattern on the LEDs here
+//         return 1;
+//     }
+//     if (!display_init()) { // display_init is a placeholder function and comes from sensor.c/.h
+//         printf("ERROR: Failed to initialize display!\n");
+//         return 1;
+//     }
+//     if (!led_array_init()) { // led_array_init is a placeholder function and comes from sensor.c/.h
+//         printf("ERROR: Failed to initialize LED array!\n");
+//         return 1;
+//     }
+
+//     printf("Initialization complete. Entering main loop.\n");
+
+//     // Main loop
+//     while (true) {
+//         // Declare variable to hold humidity value
+//         float humidity = 0.0f;
+//         // Get the humidity and store it in humidity variable.
+//         // sensor_read_humidity is a placeholder function from sensor.c/.h
+//         bool sensor_ok = sensor_read_humidity(&humidity);
+//         // If sensor_ok is true, the read was successful
+//         if (sensor_ok) {
+//             // Print humidity level
+//             printf("Humidity: %.1f%%\n", humidity);
+
+//             // Update numeric display
+//             // display_show_humidity is a placeholder function from display.c/.h
+//             display_show_humidity(humidity);
+
+//             // Use LED array module to determine how many LEDs to light up
+//             // humidity_to_leds and led_array_set are placeholder functions from led_array.c/.h
+//             uint8_t leds_on = humidity_to_leds(humidity);
+//             // light up leds_on number of leds
+//             led_array_set(leds_on);
+//         //If sensor_ok is false, the read was unsucessful
+//         } else {
+//             printf("WARNING: Failed to read humidity sensor!\n");
+//         }
+
+//         // Wait before next check
+//         sleep_ms(HUMIDITY_CHECK_INTERVAL_MS);
+//     }
+
+//     // Should never reach here
+//     return 0;
+// }
